@@ -13,18 +13,16 @@ body {
   font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
 }
 
-.flex-grow-2 {
-  flex-grow: 2;
-}
-
-.flex-grow-3 {
-  flex-grow: 3;
-}
-
-.flex-grow-4 {
-  flex-grow: 4;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn {
+  @apply flex w-12 h-4 py-4 bg-teal-500 cursor-pointer text-lg text-white items-center justify-center border rounded;
+}
+
+.btn:hover {
+  @apply bg-teal-600;
+
+  transition: .15s;
+}

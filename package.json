@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/build.js",
     "start": "node scripts/start.js",
+    "start-prod": "serve build",
     "make": "elm make",
     "repl": "elm repl",
     "reactor": "elm reactor",
@@ -52,6 +53,7 @@
     "whatwg-fetch": "2.0.4"
   },
   "dependencies": {
+    "serve": "^11.2.0",
     "tailwindcss": "^1.1.2"
   }
 }

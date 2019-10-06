@@ -15,6 +15,7 @@
             "elm/time": "1.0.0",
             "icidasset/elm-binary": "2.1.0",
             "icidasset/elm-sha": "2.0.2",
+            "krisajenkins/remotedata": "6.0.1",
             "ktonon/elm-crypto": "1.1.2",
             "rtfeldman/elm-css": "16.0.1",
             "truqu/elm-base64": "2.0.4"

@@ -1,4 +1,4 @@
-module Api.Api exposing (authenticatedGet, authenticatedPost)
+module Api.Api exposing (requestWithPayload, requestWithoutPayload)
 
 import Base64
 import Crypto.HMAC as HMAC
@@ -7,60 +7,54 @@ import Json.Encode as Encode
 import String.Conversions as Conversions
 
 
-stringToSignWithBody : String -> String -> String -> String -> String
-stringToSignWithBody httpMethod endpoint base64body nonce =
-    httpMethod ++ " " ++ endpoint ++ " " ++ base64body ++ " " ++ nonce
-
-
-stringToSignWithoutBody : String -> String -> String -> String
-stringToSignWithoutBody httpMethod endpoint nonce =
-    httpMethod ++ " " ++ endpoint ++ " " ++ nonce
-
-
 signature : String -> String -> String
-signature apiKey stringToSign =
-    HMAC.digest HMAC.sha384 apiKey stringToSign
+signature apiSecret stringToSign =
+    HMAC.digest HMAC.sha384 apiSecret stringToSign
 
 
-authenticatedGet : String -> String -> String -> String -> Http.Expect msg -> Cmd msg
-authenticatedGet nonce apiKey host endpoint expect =
+requestWithoutPayload : String -> String -> String -> String -> String -> Http.Expect msg -> String -> Cmd msg
+requestWithoutPayload nonce apiKey apiSecret host endpoint expect method =
     let
         signature_ =
-            stringToSignWithoutBody "GET" endpoint nonce |> signature apiKey
+            [ method, endpoint, nonce ]
+                |> String.join " "
+                |> signature apiSecret
     in
     Http.request
-        { method = "GET"
+        { method = method
         , headers =
             [ Http.header "X-SBTC-APIKEY" apiKey
             , Http.header "X-SBTC-NONCE" nonce
             , Http.header "X-SBTC-SIGNATURE" signature_
             ]
         , body = Http.emptyBody
-        , url = host ++ "/" ++ endpoint
+        , url = host ++ endpoint
         , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
 
 
-authenticatedPost : String -> String -> String -> Encode.Value -> String -> Http.Expect msg -> Cmd msg
-authenticatedPost nonce apiKey host json endpoint expect =
+requestWithPayload : String -> String -> String -> String -> String -> String -> Http.Expect msg -> String -> Cmd msg
+requestWithPayload nonce apiKey apiSecret host payload endpoint expect method =
     let
         base64EncodedBody =
-            Conversions.fromValue json |> Base64.encode
+            payload |> Base64.encode
 
         signature_ =
-            stringToSignWithBody "POST" endpoint base64EncodedBody nonce |> signature apiKey
+            [ method, endpoint, base64EncodedBody, nonce ]
+                |> String.join " "
+                |> signature apiSecret
     in
     Http.request
-        { method = "POST"
+        { method = method
         , headers =
             [ Http.header "X-SBTC-APIKEY" apiKey
             , Http.header "X-SBTC-NONCE" nonce
             , Http.header "X-SBTC-SIGNATURE" signature_
             ]
-        , body = Http.jsonBody json
-        , url = host ++ "/" ++ endpoint
+        , body = Http.stringBody "application/json" payload
+        , url = host ++ endpoint
         , expect = expect
         , timeout = Nothing
         , tracker = Nothing
